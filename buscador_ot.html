@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Buscador de OT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 1rem; }
+    input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; font-size: 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.5rem; border: 1px solid #ccc; text-align: left; }
+    th { background-color: #f4f4f4; }
+    tr:hover { background-color: #f1f1f1; }
+  </style>
+</head>
+<body>
+
+<h2>Buscador de OT</h2>
+<input type="text" id="searchInput" placeholder="Buscar por localidad, OT, dirección o estado...">
+
+<table id="dataTable">
+  <thead>
+    <tr>
+      <th>Localidad</th>
+      <th>OT DX</th>
+      <th>Dirección</th>
+      <th>Estado</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script src="https://unpkg.com/tabletop@1.6.0/tabletop.js"></script>
+<script>
+  const publicSpreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1lCHGJBS7KaVsAI4TmBAaidlPceAQKlDlouUiUnhqMmA/edit?usp=sharing';
+
+  function init() {
+    Tabletop.init({
+      key: publicSpreadsheetUrl,
+      simpleSheet: true,
+      callback: showInfo
+    });
+  }
+
+  function showInfo(data) {
+    const tableBody = document.querySelector("#dataTable tbody");
+    tableBody.innerHTML = "";
+
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.Localidad || ""}</td>
+        <td>${row["OT DX"] || ""}</td>
+        <td>${row.Direccion || row["Dirección"] || ""}</td>
+        <td>${row.Estado || ""}</td>
+      `;
+      tableBody.appendChild(tr);
+    });
+
+    document.getElementById("searchInput").addEventListener("input", function () {
+      const searchTerm = this.value.toLowerCase();
+      const rows = tableBody.querySelectorAll("tr");
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? "" : "none";
+      });
+    });
+  }
+
+  window.addEventListener("DOMContentLoaded", init);
+</script>
+
+</body>
+</html>
