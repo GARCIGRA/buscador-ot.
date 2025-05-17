@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BUSCADOR DX</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 300px;
+      font-size: 16px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+      background-color: #fff;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #333;
+      color: #fff;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>BUSCADOR DX</h1>
+  <input type="text" id="searchInput" placeholder="Escribí para buscar..." onkeyup="filtrar()">
+
+  <table id="tablaResultados">
+    <thead id="encabezadoTabla"></thead>
+    <tbody id="cuerpoTabla"></tbody>
+  </table>
+
+  <script>
+    const URL = "https://script.google.com/macros/s/AKfycbxApc9sguR5JjLF9uEOXJnkzBfU5MZcT7oAiDHWWci5qBDARG5ypJDi1gJ5RvlNp6n2/exec";
+
+    let datos = [];
+
+    fetch(URL)
+      .then(res => res.json())
+      .then(data => {
+        datos = data;
+        mostrarTabla(datos);
+      });
+
+    function mostrarTabla(filas) {
+      const encabezado = document.getElementById("encabezadoTabla");
+      const cuerpo = document.getElementById("cuerpoTabla");
+
+      if (filas.length === 0) {
+        encabezado.innerHTML = "";
+        cuerpo.innerHTML = "<tr><td colspan='100%'>Sin resultados</td></tr>";
+        return;
+      }
+
+      // Encabezado
+      encabezado.innerHTML = "<tr>" + Object.keys(filas[0]).map(key => `<th>${key}</th>`).join('') + "</tr>";
+
+      // Filas
+      cuerpo.innerHTML = filas.map(fila => {
+        return "<tr>" + Object.values(fila).map(dato => `<td>${dato}</td>`).join('') + "</tr>";
+      }).join('');
+    }
+
+    function filtrar() {
+      const texto = document.getElementById("searchInput").value.toLowerCase();
+      const filtrados = datos.filter(fila => {
+        return Object.values(fila).some(valor =>
+          String(valor).toLowerCase().includes(texto)
+        );
+      });
+      mostrarTabla(filtrados);
+    }
+  </script>
+
+</body>
+</html>
